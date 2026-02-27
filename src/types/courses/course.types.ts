@@ -10,8 +10,8 @@ export interface Category {
   slug: string;
   description?: string;
   icon?: {
-    url: string;
-    publicId: string;
+    secure_url: string;
+    public_id: string;
   };
   order: number;
   isActive: boolean;
@@ -29,8 +29,8 @@ export interface SubCategory {
   slug: string;
   description?: string;
   icon?: {
-    url: string;
-    publicId: string;
+    secure_url: string;
+    public_id: string;
   };
   order: number;
   isActive: boolean;
@@ -50,12 +50,12 @@ export interface Course {
   shortDescription?: string;
   description?: string;
   thumbnail?: {
-    url: string;
-    publicId: string;
+    secure_url: string;
+    public_id: string;
   };
   previewVideo?: {
-    url: string;
-    publicId: string;
+    secure_url: string;
+    public_id: string;
     duration?: number;
   };
   price: number;
@@ -79,7 +79,7 @@ export interface Course {
     instructor: {
       id: string;
       name: string;
-      avatar?: { url: string };
+      avatar?: { secure_url: string };
     };
   }>;
   tags?: Array<{ id: string; name: string }>;
@@ -91,8 +91,8 @@ export interface Subject {
   title: string;
   description?: string;
   icon?: {
-    url: string;
-    publicId: string;
+    secure_url: string;
+    public_id: string;
   };
   order: number;
   courseId: string;
@@ -171,10 +171,12 @@ export interface CreateCourseInput {
   durationMonths?: number;
   instructorIds?: string[];
   tags?: string[];
-  thumbnail?: {
-    url: string;
-    publicId: string;
-  };
+  thumbnail?: File | null | any;
+  previewVideo?: {
+    secure_url: string;
+    public_id: string;
+    duration?: number;
+  } | any;
 }
 
 export interface UpdateCourseInput extends Partial<CreateCourseInput> {}

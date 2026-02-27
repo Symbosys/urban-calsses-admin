@@ -2,8 +2,8 @@ export interface Banner {
   id: string;
   title: string;
   image: {
-    url: string;
-    publicId: string;
+    secure_url: string;
+    public_id: string;
   };
   link?: string;
   isActive: boolean;
@@ -14,10 +14,7 @@ export interface Banner {
 
 export interface CreateBannerInput {
   title: string;
-  image: {
-    url: string;
-    publicId: string;
-  };
+  image: File | null | any;
   link?: string;
   order?: number;
   isActive?: boolean;

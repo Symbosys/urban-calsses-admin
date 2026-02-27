@@ -37,7 +37,19 @@ export const useCreateInstructor = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: CreateInstructorInput) => {
-      const { data } = await api.post<ApiResponse<{ instructor: Instructor }>>("/instructors", payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      const { data } = await api.post<ApiResponse<{ instructor: Instructor }>>("/instructors", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data.data;
     },
     onSuccess: () => {
@@ -54,7 +66,19 @@ export const useUpdateInstructor = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...payload }: UpdateInstructorInput & { id: string }) => {
-      const { data } = await api.put<ApiResponse<{ instructor: Instructor }>>(`/instructors/${id}`, payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      const { data } = await api.put<ApiResponse<{ instructor: Instructor }>>(`/instructors/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data.data;
     },
     onSuccess: (data, variables) => {

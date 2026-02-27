@@ -22,7 +22,19 @@ export const useCreateBanner = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: CreateBannerInput) => {
-      const { data } = await api.post<ApiResponse<{ banner: Banner }>>("/admin/banners", payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      const { data } = await api.post<ApiResponse<{ banner: Banner }>>("/admin/banners", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data.data;
     },
     onSuccess: () => {
@@ -39,7 +51,19 @@ export const useUpdateBanner = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...payload }: UpdateBannerInput & { id: string }) => {
-      const { data } = await api.patch<ApiResponse<{ banner: Banner }>>(`/admin/banners/${id}`, payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      const { data } = await api.patch<ApiResponse<{ banner: Banner }>>(`/admin/banners/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data.data;
     },
     onSuccess: () => {

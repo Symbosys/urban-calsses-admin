@@ -159,11 +159,20 @@ function CategoryTable({ categories, isLoading }: { categories: Category[], isLo
               <TableRow key={category.id} className="group hover:bg-muted/30 transition-colors border-border/30">
                 <TableCell className="font-medium text-muted-foreground">{category.order}</TableCell>
                 <TableCell>
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-foreground group-hover:text-primary transition-colors">{category.name}</span>
-                    {category.description && (
-                      <span className="text-xs text-muted-foreground line-clamp-1">{category.description}</span>
-                    )}
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded bg-muted/50 overflow-hidden border border-border/50 flex-shrink-0">
+                      {category.icon?.secure_url ? (
+                        <img src={category.icon.secure_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center"><Layers className="w-4 h-4 text-muted-foreground/30" /></div>
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-foreground group-hover:text-primary transition-colors">{category.name}</span>
+                      {category.description && (
+                        <span className="text-xs text-muted-foreground line-clamp-1">{category.description}</span>
+                      )}
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -286,8 +295,17 @@ function SubCategoryTable({
               <TableRow key={subCategory.id} className="group hover:bg-muted/30 transition-colors border-border/30">
                 <TableCell className="font-medium text-muted-foreground">{subCategory.order}</TableCell>
                 <TableCell>
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-foreground group-hover:text-primary transition-colors">{subCategory.name}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded bg-muted/50 overflow-hidden border border-border/50 flex-shrink-0">
+                      {subCategory.icon?.secure_url ? (
+                        <img src={subCategory.icon.secure_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center"><Tag className="w-4 h-4 text-muted-foreground/30" /></div>
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-foreground group-hover:text-primary transition-colors">{subCategory.name}</span>
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -369,19 +387,33 @@ function CategoryDialog({ category, mode = "add" }: { category?: Category, mode?
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    description: string;
+    order: number;
+    isActive: boolean;
+    icon: any;
+  }>({
     name: category?.name || "",
     description: category?.description || "",
     order: category?.order || 0,
-    isActive: category?.isActive ?? true
+    isActive: category?.isActive ?? true,
+    icon: category?.icon || undefined,
   });
+
+  const [iconPreview, setIconPreview] = useState<string | null>(category?.icon?.secure_url || null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const submitData = { ...formData };
+    if (submitData.icon && !(submitData.icon instanceof File)) {
+      delete submitData.icon;
+    }
+
     if (mode === "edit" && category) {
-      updateCategory.mutate({ id: category.id, ...formData }, { onSuccess: () => setIsOpen(false) });
+      updateCategory.mutate({ id: category.id, ...submitData }, { onSuccess: () => setIsOpen(false) });
     } else {
-      createCategory.mutate(formData, { onSuccess: () => setIsOpen(false) });
+      createCategory.mutate(submitData, { onSuccess: () => setIsOpen(false) });
     }
   };
 
@@ -449,6 +481,24 @@ function CategoryDialog({ category, mode = "add" }: { category?: Category, mode?
               />
             </div>
           </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">Icon</Label>
+            <div className="col-span-3 flex items-center gap-4">
+              <div className="h-16 w-16 rounded-lg bg-muted border border-dashed border-border flex items-center justify-center overflow-hidden">
+                {iconPreview ? <img src={iconPreview} className="h-full w-full object-cover" alt="" /> : <Layers className="w-6 h-6 text-muted-foreground/30" />}
+              </div>
+              <Label htmlFor="cat-icon" className="cursor-pointer bg-primary/10 text-primary px-3 py-1.5 rounded-md text-xs font-semibold hover:bg-primary/20 transition-colors">
+                Choose Icon
+                <Input id="cat-icon" type="file" accept="image/*" className="hidden" onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) {
+                    setFormData(p => ({ ...p, icon: f }));
+                    setIconPreview(URL.createObjectURL(f));
+                  }
+                }} />
+              </Label>
+            </div>
+          </div>
           <DialogFooter className="pt-4 border-t gap-2">
             <Button type="button" variant="outline" onClick={() => setIsOpen(false)} className="flex-1">Cancel</Button>
             <Button 
@@ -481,22 +531,37 @@ function SubCategoryDialog({
   const createSubCategory = useCreateSubCategory();
   const updateSubCategory = useUpdateSubCategory();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    description: string;
+    order: number;
+    isActive: boolean;
+    categoryId: string;
+    icon: any;
+  }>({
     name: subCategory?.name || "",
     description: subCategory?.description || "",
     order: subCategory?.order || 0,
     isActive: subCategory?.isActive ?? true,
-    categoryId: subCategory?.categoryId || categories?.[0]?.id || ""
+    categoryId: subCategory?.categoryId || categories?.[0]?.id || "",
+    icon: subCategory?.icon || undefined,
   });
+
+  const [iconPreview, setIconPreview] = useState<string | null>(subCategory?.icon?.secure_url || null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.categoryId) return;
     
+    const submitData = { ...formData };
+    if (submitData.icon && !(submitData.icon instanceof File)) {
+      delete submitData.icon;
+    }
+
     if (mode === "edit" && subCategory) {
-      updateSubCategory.mutate({ id: subCategory.id, ...formData }, { onSuccess: () => setIsOpen(false) });
+      updateSubCategory.mutate({ id: subCategory.id, ...submitData }, { onSuccess: () => setIsOpen(false) });
     } else {
-      createSubCategory.mutate(formData, { onSuccess: () => setIsOpen(false) });
+      createSubCategory.mutate(submitData, { onSuccess: () => setIsOpen(false) });
     }
   };
 
@@ -570,6 +635,24 @@ function SubCategoryDialog({
                 checked={formData.isActive} 
                 onCheckedChange={(c) => setFormData(p => ({ ...p, isActive: c }))} 
               />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">Icon</Label>
+            <div className="col-span-3 flex items-center gap-4">
+              <div className="h-16 w-16 rounded-lg bg-muted border border-dashed border-border flex items-center justify-center overflow-hidden">
+                {iconPreview ? <img src={iconPreview} className="h-full w-full object-cover" alt="" /> : <Tag className="w-6 h-6 text-muted-foreground/30" />}
+              </div>
+              <Label htmlFor="sub-cat-icon" className="cursor-pointer bg-primary/10 text-primary px-3 py-1.5 rounded-md text-xs font-semibold hover:bg-primary/20 transition-colors">
+                Choose Icon
+                <Input id="sub-cat-icon" type="file" accept="image/*" className="hidden" onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) {
+                    setFormData(p => ({ ...p, icon: f }));
+                    setIconPreview(URL.createObjectURL(f));
+                  }
+                }} />
+              </Label>
             </div>
           </div>
           <DialogFooter className="pt-4 border-t gap-2">

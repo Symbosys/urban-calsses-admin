@@ -11,6 +11,9 @@ import {
   Star,
   ChevronRight,
   Menu,
+  Trophy,
+  MapPin,
+  Newspaper
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -25,6 +28,9 @@ const menuItems = [
   { icon: Image, label: "Banners", path: "/banners" },
   { icon: Ticket, label: "Coupons", path: "/coupons" },
   { icon: Star, label: "Reviews", path: "/reviews" },
+  { icon: Trophy, label: "Results", path: "/results" },
+  { icon: MapPin, label: "Offline Centers", path: "/offline-centers" },
+  { icon: Newspaper, label: "Blogs", path: "/blogs" },
 ];
 
 export function Sidebar() {

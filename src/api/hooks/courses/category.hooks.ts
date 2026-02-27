@@ -36,7 +36,21 @@ export const useCreateCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Partial<Category>) => {
-      const { data } = await api.post<ApiResponse<{ category: Category }>>("/categories", payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else if (typeof value === "object") {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      const { data } = await api.post<ApiResponse<{ category: Category }>>("/categories", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data.data;
     },
     onSuccess: () => {
@@ -53,7 +67,21 @@ export const useUpdateCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...payload }: Partial<Category> & { id: string }) => {
-      const { data } = await api.put<ApiResponse<{ category: Category }>>(`/categories/${id}`, payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else if (typeof value === "object") {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      const { data } = await api.put<ApiResponse<{ category: Category }>>(`/categories/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data.data;
     },
     onSuccess: (data, variables) => {
@@ -112,7 +140,21 @@ export const useCreateSubCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Partial<SubCategory>) => {
-      const { data } = await api.post<ApiResponse<{ subCategory: SubCategory }>>("/sub-categories", payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else if (typeof value === "object") {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      const { data } = await api.post<ApiResponse<{ subCategory: SubCategory }>>("/sub-categories", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data.data;
     },
     onSuccess: () => {
@@ -130,7 +172,21 @@ export const useUpdateSubCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...payload }: Partial<SubCategory> & { id: string }) => {
-      const { data } = await api.put<ApiResponse<{ subCategory: SubCategory }>>(`/sub-categories/${id}`, payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else if (typeof value === "object") {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      const { data } = await api.put<ApiResponse<{ subCategory: SubCategory }>>(`/sub-categories/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data.data;
     },
     onSuccess: (data, variables) => {

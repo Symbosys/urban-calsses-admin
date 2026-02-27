@@ -7,8 +7,8 @@ export interface Instructor {
   email: string;
   phone?: string;
   avatar?: {
-    url: string;
-    publicId: string;
+    secure_url: string;
+    public_id: string;
   };
   isVerified: boolean;
   isBlocked: boolean;
@@ -35,10 +35,7 @@ export interface CreateInstructorInput {
   bio?: string;
   specialization?: string;
   experience?: number;
-  avatar?: {
-    url: string;
-    publicId: string;
-  };
+  avatar?: File | null | any;
 }
 
 export interface UpdateInstructorInput extends Partial<CreateInstructorInput> {

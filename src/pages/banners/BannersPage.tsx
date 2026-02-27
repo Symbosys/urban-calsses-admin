@@ -43,7 +43,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import type { Banner } from "@/types/admin/banner.types";
+import type { Banner, CreateBannerInput } from "@/types/admin/banner.types";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -86,9 +86,9 @@ export default function BannersPage() {
                   <TableRow key={banner.id} className="group hover:bg-muted/30 transition-colors border-border/30">
                     <TableCell>
                       <div className="relative h-12 w-20 rounded-md overflow-hidden border border-border/50 bg-muted/50">
-                        {banner.image?.url ? (
+                        {banner.image?.secure_url ? (
                           <img 
-                            src={banner.image.url} 
+                            src={banner.image.secure_url} 
                             alt={banner.title} 
                             className="h-full w-full object-cover"
                           />
@@ -186,30 +186,38 @@ function BannerDialog({ banner, mode = "add" }: { banner?: Banner, mode?: "add" 
   const createBanner = useCreateBanner();
   const updateBanner = useUpdateBanner();
 
-  const [formData, setFormData] = useState({
-    title: banner?.title || "",
-    link: banner?.link || "",
-    order: banner?.order || 0,
-    isActive: banner?.isActive ?? true,
-    image: banner?.image || { url: "", publicId: "" }
-  });
+   const [formData, setFormData] = useState<CreateBannerInput>({
+     title: banner?.title || "",
+     link: banner?.link || "",
+     order: banner?.order || 0,
+     isActive: banner?.isActive ?? true,
+     image: banner?.image || undefined
+   });
+ 
+   const [imagePreview, setImagePreview] = useState<string | null>(banner?.image?.secure_url || null);
+ 
+   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+     const file = e.target.files?.[0];
+     if (file) {
+       setFormData(p => ({ ...p, image: file }));
+       setImagePreview(URL.createObjectURL(file));
+     }
+   };
+ 
+   const handleSubmit = (e: React.FormEvent) => {
+     e.preventDefault();
+     
+     const submitData = { ...formData };
+     if (submitData.image && !(submitData.image instanceof File)) {
+       delete submitData.image;
+     }
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setFormData(p => ({ ...p, image: { url, publicId: "temp" } }));
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (mode === "edit" && banner) {
-      updateBanner.mutate({ id: banner.id, ...formData }, { onSuccess: () => setIsOpen(false) });
-    } else {
-      createBanner.mutate(formData, { onSuccess: () => setIsOpen(false) });
-    }
-  };
+     if (mode === "edit" && banner) {
+       updateBanner.mutate({ id: banner.id, ...submitData }, { onSuccess: () => setIsOpen(false) });
+     } else {
+       createBanner.mutate(submitData as any, { onSuccess: () => setIsOpen(false) });
+     }
+   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -234,13 +242,13 @@ function BannerDialog({ banner, mode = "add" }: { banner?: Banner, mode?: "add" 
         <form onSubmit={handleSubmit} className="space-y-6 py-4">
           <div className="space-y-2">
             <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Banner Image</Label>
-            <div className="relative aspect-[21/9] w-full rounded-xl overflow-hidden group border-2 border-dashed border-primary/20 hover:border-primary/40 transition-colors bg-muted/30">
-              {formData.image.url ? (
-                <img 
-                  src={formData.image.url} 
-                  className="w-full h-full object-cover" 
-                  alt="Banner Preview" 
-                />
+             <div className="relative aspect-[21/9] w-full rounded-xl overflow-hidden group border-2 border-dashed border-primary/20 hover:border-primary/40 transition-colors bg-muted/30">
+               {imagePreview ? (
+                 <img 
+                   src={imagePreview} 
+                   className="w-full h-full object-cover" 
+                   alt="Banner Preview" 
+                 />
               ) : (
                 <div className="flex flex-col items-center justify-center h-full space-y-2 text-muted-foreground">
                   <ImageIcon className="w-10 h-10 opacity-20" />

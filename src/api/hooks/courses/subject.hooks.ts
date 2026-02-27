@@ -38,7 +38,21 @@ export const useCreateSubject = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Partial<Subject>) => {
-      const { data } = await api.post<ApiResponse<{ subject: Subject }>>("/subjects", payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else if (typeof value === "object") {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      const { data } = await api.post<ApiResponse<{ subject: Subject }>>("/subjects", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data.data;
     },
     onSuccess: (data) => {
@@ -58,7 +72,21 @@ export const useUpdateSubject = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...payload }: Partial<Subject> & { id: string }) => {
-      const { data } = await api.put<ApiResponse<{ subject: Subject }>>(`/subjects/${id}`, payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else if (typeof value === "object") {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      const { data } = await api.put<ApiResponse<{ subject: Subject }>>(`/subjects/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data.data;
     },
     onSuccess: (data, variables) => {

@@ -48,7 +48,23 @@ export const useCreateCourse = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: CreateCourseInput) => {
-      const { data } = await api.post<ApiResponse<{ course: Course }>>("/courses", payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else if (Array.isArray(value)) {
+            formData.append(key, JSON.stringify(value));
+          } else if (typeof value === "object") {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      const { data } = await api.post<ApiResponse<{ course: Course }>>("/courses", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data.data;
     },
     onSuccess: () => {
@@ -65,7 +81,23 @@ export const useUpdateCourse = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...payload }: UpdateCourseInput & { id: string }) => {
-      const { data } = await api.put<ApiResponse<{ course: Course }>>(`/courses/${id}`, payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else if (Array.isArray(value)) {
+            formData.append(key, JSON.stringify(value));
+          } else if (typeof value === "object") {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      const { data } = await api.put<ApiResponse<{ course: Course }>>(`/courses/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data.data;
     },
     onSuccess: (data, variables) => {

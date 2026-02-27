@@ -49,7 +49,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import type { Instructor } from "@/types/instructor/instructor.types";
+import type { Instructor, CreateInstructorInput } from "@/types/instructor/instructor.types";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -117,7 +117,7 @@ export default function InstructorsPage() {
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10 border-2 border-primary/10">
-                            <AvatarImage src={instructor.avatar?.url} />
+                            <AvatarImage src={instructor.avatar?.secure_url} />
                             <AvatarFallback className="bg-primary/5 text-primary font-bold">
                               {instructor.name?.charAt(0) || instructor.email.charAt(0)}
                             </AvatarFallback>
@@ -234,34 +234,40 @@ function InstructorDialog({ instructor, mode = "add" }: { instructor?: Instructo
   const createInstructor = useCreateInstructor();
   const updateInstructor = useUpdateInstructor();
 
-  const [formData, setFormData] = useState({
-    name: instructor?.name || "",
-    email: instructor?.email || "",
-    phone: instructor?.phone || "",
-    specialization: instructor?.specialization || "",
-    experience: instructor?.experience || 0,
-    bio: instructor?.bio || "",
-    avatar: instructor?.avatar || { url: "", publicId: "" },
-  });
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // In a real app, you'd upload to Cloudinary/S3 here
-      // For now, we'll use a local object URL for preview
-      const url = URL.createObjectURL(file);
-      setFormData(p => ({ ...p, avatar: { url, publicId: "temp" } }));
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (mode === "edit" && instructor) {
-      updateInstructor.mutate({ id: instructor.id, ...formData }, { onSuccess: () => setIsOpen(false) });
-    } else {
-      createInstructor.mutate(formData, { onSuccess: () => setIsOpen(false) });
-    }
-  };
+   const [formData, setFormData] = useState<CreateInstructorInput>({
+     name: instructor?.name || "",
+     email: instructor?.email || "",
+     phone: instructor?.phone || "",
+     specialization: instructor?.specialization || "",
+     experience: instructor?.experience || 0,
+     bio: instructor?.bio || "",
+     avatar: instructor?.avatar || undefined,
+   });
+ 
+   const [avatarPreview, setAvatarPreview] = useState<string | null>(instructor?.avatar?.secure_url || null);
+ 
+   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+     const file = e.target.files?.[0];
+     if (file) {
+       setFormData(p => ({ ...p, avatar: file }));
+       setAvatarPreview(URL.createObjectURL(file));
+     }
+   };
+ 
+   const handleSubmit = (e: React.FormEvent) => {
+     e.preventDefault();
+ 
+     const submitData = { ...formData };
+     if (submitData.avatar && !(submitData.avatar instanceof File)) {
+       delete submitData.avatar;
+     }
+ 
+     if (mode === "edit" && instructor) {
+       updateInstructor.mutate({ id: instructor.id, ...submitData }, { onSuccess: () => setIsOpen(false) });
+     } else {
+       createInstructor.mutate(submitData as any, { onSuccess: () => setIsOpen(false) });
+     }
+   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -285,9 +291,9 @@ function InstructorDialog({ instructor, mode = "add" }: { instructor?: Instructo
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="flex flex-col items-center justify-center space-y-3 mb-6">
-            <div className="relative group">
-              <Avatar className="h-24 w-24 border-4 border-primary/10 shadow-xl transition-all group-hover:border-primary/30">
-                <AvatarImage src={formData.avatar.url} className="object-cover" />
+             <div className="relative group">
+               <Avatar className="h-24 w-24 border-4 border-primary/10 shadow-xl transition-all group-hover:border-primary/30">
+                 <AvatarImage src={avatarPreview || ""} className="object-cover" />
                 <AvatarFallback className="bg-primary/5 text-primary text-2xl font-bold">
                   {formData.name?.charAt(0) || "U"}
                 </AvatarFallback>
