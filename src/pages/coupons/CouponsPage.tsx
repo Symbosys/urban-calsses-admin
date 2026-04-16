@@ -5,7 +5,7 @@ import {
   useCreateCoupon, 
   useUpdateCoupon, 
   useDeleteCoupon 
-} from "@/api/hooks/admin/coupon.hooks";
+} from "../../api/hooks/admin/coupon.hooks";
 import { Button } from "@/components/ui/button";
 import { 
   Table, 

@@ -13,10 +13,14 @@ import {
   Menu,
   Trophy,
   MapPin,
-  Newspaper
+  Newspaper,
+  Calendar,
+  ClipboardList,
+  LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { useAuthStore } from "@/store/authStore";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
@@ -30,6 +34,8 @@ const menuItems = [
   { icon: Star, label: "Reviews", path: "/reviews" },
   { icon: Trophy, label: "Results", path: "/results" },
   { icon: MapPin, label: "Offline Centers", path: "/offline-centers" },
+  { icon: Calendar, label: "Offline Batches", path: "/offline-batches" },
+  { icon: ClipboardList, label: "Offline Bookings", path: "/offline-bookings" },
   { icon: Newspaper, label: "Blogs", path: "/blogs" },
 ];
 
@@ -98,20 +104,46 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-sidebar-border mt-auto">
-         {!isCollapsed ? (
-             <div className="bg-sidebar-accent/50 p-4 rounded-2xl flex items-center gap-3 border border-sidebar-border/50 overflow-hidden">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 font-bold text-primary shrink-0">A</div>
-                <div className="overflow-hidden">
-                   <p className="text-sm font-semibold truncate leading-none mb-1 text-sidebar-foreground">Admin Panel</p>
-                   <p className="text-xs text-muted-foreground truncate italic">System Admin</p>
+      <div className="p-4 border-t border-sidebar-border mt-auto space-y-2">
+         <div className="bg-sidebar-accent/50 p-4 rounded-2xl flex items-center justify-between border border-sidebar-border/50 overflow-hidden group/user">
+            {!isCollapsed ? (
+                <div className="flex items-center gap-3 overflow-hidden">
+                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 font-bold text-primary shrink-0 uppercase">
+                      {useAuthStore.getState().user?.name?.[0] || 'A'}
+                   </div>
+                   <div className="overflow-hidden">
+                      <p className="text-sm font-semibold truncate leading-none mb-1 text-sidebar-foreground">
+                        {useAuthStore.getState().user?.name || "Admin Panel"}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate italic">
+                        {useAuthStore.getState().user?.email || "System Admin"}
+                      </p>
+                   </div>
                 </div>
-             </div>
-         ) : (
-             <div className="flex justify-center">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 font-bold text-primary">A</div>
-             </div>
-         )}
+            ) : (
+                <div className="flex justify-center w-full">
+                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 font-bold text-primary uppercase">
+                      {useAuthStore.getState().user?.name?.[0] || 'A'}
+                   </div>
+                </div>
+            )}
+         </div>
+         
+         <button
+           onClick={() => { if(confirm("Are you sure you want to logout?")) useAuthStore.getState().logout(); }}
+           className={cn(
+             "w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 text-sm font-medium text-destructive hover:bg-destructive/10",
+             isCollapsed && "justify-center"
+           )}
+         >
+           <LogOut size={20} className="shrink-0" />
+           {!isCollapsed && <span className="truncate">Logout</span>}
+           {isCollapsed && (
+              <div className="fixed left-20 bg-destructive text-white px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[60] ml-2 whitespace-nowrap border border-destructive/20">
+                 Logout
+              </div>
+           )}
+         </button>
       </div>
     </aside>
   );

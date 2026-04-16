@@ -1,52 +1,28 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../../api";
-import type { ApiResponse, Pagination } from "@/types/api.types";
-import type { 
-  AdminUser, 
-  UserFilters 
-} from "@/types/admin/user.types";
+import type { ApiResponse } from "@/types/api.types";
 import { showErrorMessage, showSuccessMessage } from "@/utils/message";
 
-export const useUsers = (params: UserFilters = {}) => {
+export const useUsers = (params?: any) => {
   return useQuery({
-    queryKey: ["admin", "users", params],
+    queryKey: ["users", params],
     queryFn: async () => {
-      const { data } = await api.get<ApiResponse<{ users: AdminUser[]; pagination: Pagination }>>(
-        "/admin/users",
-        { params }
-      );
+      const { data } = await api.get<ApiResponse<any>>("/users", { params });
       return data.data;
     },
   });
 };
 
-export const useToggleUserVerification = () => {
+export const useBlockUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { data } = await api.patch<ApiResponse<any>>(`/admin/users/${id}/verify`);
+    mutationFn: async ({ id, isBlocked }: { id: string; isBlocked: boolean }) => {
+      const { data } = await api.patch<ApiResponse<any>>(`/users/${id}/block`, { isBlocked });
       return data.data;
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
-      showSuccessMessage(data.message || "User verification toggled successfully");
-    },
-    onError: (error: any) => {
-      showErrorMessage(error);
-    },
-  });
-};
-
-export const useToggleUserBlock = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const { data } = await api.patch<ApiResponse<any>>(`/admin/users/${id}/block`);
-      return data.data;
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
-      showSuccessMessage(data.message || "User block status toggled successfully");
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      showSuccessMessage("User status updated");
     },
     onError: (error: any) => {
       showErrorMessage(error);

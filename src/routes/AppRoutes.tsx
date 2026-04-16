@@ -13,13 +13,19 @@ import {
   ReviewsPage,
   ResultsPage,
   OfflineCentersPage,
+  OfflineBatchesPage,
+  OfflineBookingsPage,
   BlogsPage
 } from "@/pages/Pages";
+
+import LoginPage from "@/pages/auth/LoginPage";
+import { ProtectedGuard } from "@/components/auth/ProtectedGuard";
 
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={<ProtectedGuard><Layout /></ProtectedGuard>}>
         <Route index element={<DashboardPage />} />
         <Route path="courses" element={<CoursesPage />} />
         <Route path="courses/:id" element={<CourseDetailPage />} />
@@ -32,6 +38,8 @@ export function AppRoutes() {
         <Route path="reviews" element={<ReviewsPage />} />
         <Route path="results" element={<ResultsPage />} />
         <Route path="offline-centers" element={<OfflineCentersPage />} />
+        <Route path="offline-batches" element={<OfflineBatchesPage />} />
+        <Route path="offline-bookings" element={<OfflineBookingsPage />} />
         <Route path="blogs" element={<BlogsPage />} />
         
         {/* 404 Route */}

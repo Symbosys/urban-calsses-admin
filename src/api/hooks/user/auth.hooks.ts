@@ -6,8 +6,10 @@ import type {
   OtpResponse 
 } from "@/types/user/user.types";
 import { showErrorMessage, showSuccessMessage } from "@/utils/message";
+import { useAuthStore } from "@/store/authStore";
 
 export const useSendOtp = () => {
+// ... (omitting unchanged code for simplicity but will provide full target)
   return useMutation({
     mutationFn: async (email: string) => {
       const { data } = await api.post<ApiResponse<OtpResponse>>("/user/auth/send-otp", { email });
@@ -28,8 +30,25 @@ export const useVerifyOtp = () => {
       const { data } = await api.post<ApiResponse<AuthResponse>>("/user/auth/verify-otp", payload);
       return data.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      useAuthStore.getState().setAuth(data.user, data.token);
       showSuccessMessage("Logged in successfully");
+    },
+    onError: (error: any) => {
+      showErrorMessage(error);
+    },
+  });
+};
+
+export const useAdminLogin = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const { data } = await api.post<ApiResponse<AuthResponse>>("/admin/auth/login", payload);
+      return data.data;
+    },
+    onSuccess: (data) => {
+      useAuthStore.getState().setAuth(data.user, data.token);
+      showSuccessMessage("Admin logged in successfully");
     },
     onError: (error: any) => {
       showErrorMessage(error);

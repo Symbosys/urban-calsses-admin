@@ -5,7 +5,7 @@ import {
   useCreateBanner, 
   useUpdateBanner, 
   useDeleteBanner 
-} from "@/api/hooks/admin/banner.hooks";
+} from "../../api/hooks/admin/banner.hooks";
 import { Button } from "@/components/ui/button";
 import { 
   Table, 

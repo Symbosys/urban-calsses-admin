@@ -1,16 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../../api";
 import type { ApiResponse } from "@/types/api.types";
-import type { 
-  Coupon, 
-  CreateCouponInput, 
-  UpdateCouponInput 
-} from "@/types/admin/coupon.types";
+import type { Coupon } from "@/types/admin/coupon.types";
 import { showErrorMessage, showSuccessMessage } from "@/utils/message";
 
 export const useCoupons = () => {
   return useQuery({
-    queryKey: ["admin", "coupons"],
+    queryKey: ["coupons"],
     queryFn: async () => {
       const { data } = await api.get<ApiResponse<{ coupons: Coupon[] }>>("/admin/coupons");
       return data.data;
@@ -21,12 +17,12 @@ export const useCoupons = () => {
 export const useCreateCoupon = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: CreateCouponInput) => {
-      const { data } = await api.post<ApiResponse<{ coupon: Coupon }>>("/admin/coupons", payload);
+    mutationFn: async (payload: any) => {
+      const { data } = await api.post<ApiResponse<Coupon>>("/admin/coupons", payload);
       return data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "coupons"] });
+      queryClient.invalidateQueries({ queryKey: ["coupons"] });
       showSuccessMessage("Coupon created successfully");
     },
     onError: (error: any) => {
@@ -38,12 +34,12 @@ export const useCreateCoupon = () => {
 export const useUpdateCoupon = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...payload }: UpdateCouponInput & { id: string }) => {
-      const { data } = await api.patch<ApiResponse<{ coupon: Coupon }>>(`/admin/coupons/${id}`, payload);
+    mutationFn: async ({ id, ...payload }: any) => {
+      const { data } = await api.patch<ApiResponse<Coupon>>(`/admin/coupons/${id}`, payload);
       return data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "coupons"] });
+      queryClient.invalidateQueries({ queryKey: ["coupons"] });
       showSuccessMessage("Coupon updated successfully");
     },
     onError: (error: any) => {
@@ -56,10 +52,11 @@ export const useDeleteCoupon = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      await api.delete(`/admin/coupons/${id}`);
+      const { data } = await api.delete<ApiResponse<any>>(`/admin/coupons/${id}`);
+      return data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "coupons"] });
+      queryClient.invalidateQueries({ queryKey: ["coupons"] });
       showSuccessMessage("Coupon deleted successfully");
     },
     onError: (error: any) => {
