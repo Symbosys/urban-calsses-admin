@@ -4,7 +4,7 @@ import { useAuthStore } from "../store/authStore";
 const api = axios.create({
     baseURL: window.location.hostname === "localhost" 
         ? "http://localhost:4000/api/v1" 
-        : "https://urban-classes-backend.vercel.app/api/v1",
+        : "https://urban-calsses-backend.vercel.app/api/v1",
     headers: {
         "Content-Type": "application/json",
     },
