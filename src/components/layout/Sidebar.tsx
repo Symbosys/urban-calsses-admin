@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useAuthStore } from "@/store/authStore";
+import logo from "@/asser/Urban Classes Logo - 1 (1).png";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
@@ -53,8 +54,8 @@ export function Sidebar() {
       <div className="p-6 flex items-center justify-between">
         {!isCollapsed && (
           <div className="flex items-center gap-2 overflow-hidden">
-             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
-                <span className="text-primary-foreground font-bold italic">UC</span>
+             <div className="w-8 h-8 flex items-center justify-center shrink-0">
+                <img src={logo} alt="UC" className="w-full h-full object-contain" />
              </div>
              <span className="font-bold text-xl tracking-tight whitespace-nowrap">Urban Classes</span>
           </div>
