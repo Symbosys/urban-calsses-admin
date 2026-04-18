@@ -121,7 +121,7 @@ export default function BlogsPage() {
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-primary/5 text-primary">
-                                <FileText size={20} />
+                                <ImageIcon size={20} />
                               </div>
                             )}
                           </div>
