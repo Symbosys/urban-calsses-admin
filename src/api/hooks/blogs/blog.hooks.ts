@@ -37,7 +37,23 @@ export const useCreateBlog = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: CreateBlogInput) => {
-      const { data } = await api.post<ApiResponse<{ blog: Blog }>>("/blogs", payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else if (Array.isArray(value)) {
+             value.forEach(item => formData.append(`${key}[]`, item));
+          } else if (typeof value === "object") {
+             formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      const { data } = await api.post<ApiResponse<{ blog: Blog }>>("/blogs", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data.data;
     },
     onSuccess: () => {
@@ -54,7 +70,23 @@ export const useUpdateBlog = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...payload }: UpdateBlogInput) => {
-      const { data } = await api.patch<ApiResponse<{ blog: Blog }>>(`/blogs/${id}`, payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else if (Array.isArray(value)) {
+             value.forEach(item => formData.append(`${key}[]`, item));
+          } else if (typeof value === "object") {
+             formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      const { data } = await api.patch<ApiResponse<{ blog: Blog }>>(`/blogs/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data.data;
     },
     onSuccess: (_, variables) => {
