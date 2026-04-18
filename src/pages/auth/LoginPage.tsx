@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShieldCheck, Mail, ArrowRight, Loader2, KeyRound } from "lucide-react";
+import logo from "@/asser/Urban Classes Logo - 1 (1).png";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -37,8 +38,8 @@ export default function LoginPage() {
 
       <Card className="max-w-[420px] w-full border-none shadow-2xl bg-[#0a0f18]/80 backdrop-blur-3xl z-10 p-2">
         <CardHeader className="space-y-4 text-center">
-          <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-2 border border-primary/20">
-             <ShieldCheck className="w-9 h-9 text-primary" />
+          <div className="mx-auto w-32 h-32 flex items-center justify-center mb-2">
+             <img src={logo} alt="Urban Classes Admin Logo" className="w-full h-full object-contain" />
           </div>
           <CardTitle className="text-3xl font-black tracking-tight text-white uppercase italic">Admin Access</CardTitle>
           <CardDescription className="text-muted-foreground/80 italic">
