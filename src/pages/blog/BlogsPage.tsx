@@ -237,7 +237,7 @@ function BlogDialog({
   const createBlog = useCreateBlog();
   const updateBlog = useUpdateBlog();
 
-  const [form, setForm] = useState<CreateBlogInput>({
+  const [form, setForm] = useState<CreateBlogInput | any>({
     title: blog?.title || "",
     slug: blog?.slug || "",
     content: blog?.content || "",
@@ -249,25 +249,37 @@ function BlogDialog({
     thumbnail: blog?.thumbnail || undefined,
   });
 
-  const set = (key: string, val: any) => setForm((p) => ({ ...p, [key]: val }));
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(blog?.thumbnail?.url || null);
+
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      set("thumbnail", file);
+      setThumbnailPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const set = (key: string, val: any) => setForm((p: any) => ({ ...p, [key]: val }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     // Make thumbnail optional by setting to null if URL is empty
-    const payload = {
-      ...form,
-      thumbnail: form.thumbnail?.url ? form.thumbnail : null,
-      authorImage: form.authorImage?.url ? form.authorImage : null,
-    };
+    const payload = { ...form };
+    if (payload.thumbnail && !(payload.thumbnail instanceof File) && !payload.thumbnail.url) {
+      payload.thumbnail = null;
+    }
+    if (payload.authorImage && !(payload.authorImage instanceof File) && !payload.authorImage.url) {
+      payload.authorImage = null;
+    }
 
     if (mode === "edit" && blog) {
       updateBlog.mutate(
-        { id: blog.id, ...payload },
+        { id: blog.id, ...payload } as any,
         { onSuccess: () => setIsOpen(false) },
       );
     } else {
-      createBlog.mutate(payload, { onSuccess: () => setIsOpen(false) });
+      createBlog.mutate(payload as any, { onSuccess: () => setIsOpen(false) });
     }
   };
 
@@ -355,20 +367,30 @@ function BlogDialog({
 
           <div className="space-y-2">
             <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Thumbnail Image URL
+              Thumbnail Image
             </Label>
+            {thumbnailPreview ? (
+              <div className="relative w-full h-40 rounded-xl overflow-hidden mb-2 border">
+                <img src={thumbnailPreview} className="w-full h-full object-cover" alt="preview" />
+                <Button 
+                  type="button" 
+                  size="icon" 
+                  variant="destructive" 
+                  className="absolute top-2 right-2 h-8 w-8 rounded-full"
+                  onClick={() => {
+                    set("thumbnail", null);
+                    setThumbnailPreview(null);
+                  }}
+                >
+                  <XCircle size={16} />
+                </Button>
+              </div>
+            ) : null}
             <div className="relative">
-              <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                className="pl-9"
-                placeholder="https://unsplash.com/..."
-                value={form.thumbnail?.url || ""}
-                onChange={(e) =>
-                  set("thumbnail", {
-                    url: e.target.value,
-                    publicId: "external",
-                  })
-                }
+                type="file"
+                accept="image/*"
+                onChange={handleThumbnailChange}
               />
             </div>
           </div>
